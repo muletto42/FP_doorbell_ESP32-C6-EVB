@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- created with https://bootstrapformbuilder.com/ -->
+  <title>FingerprintDoorbell</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <style>
+	.alert-custom{
+		background-color:#cecece;
+		color:rgb(0, 0, 0);
+	}
+	.form-horizontal{
+		margin-left: 15px;
+		margin-right: 15px;
+	}
+  </style>
+</head>
+<body>
+	<script>
+		if (!!window.EventSource) {
+			var source = new EventSource('/events');
+
+			source.addEventListener('open', function(e) {
+				console.log("Events Connected");
+			}, false);
+
+			source.addEventListener('error', function(e) {
+				if (e.target.readyState != EventSource.OPEN) {
+				console.log("Events Disconnected");
+				}
+			}, false);
+
+			// event is fired when a new message from server was received
+			source.addEventListener('message', function(e) {
+				console.log("message", e.data);
+				document.getElementById('logMessages').innerHTML = event.data;
+			}, false);
+
+		}
+    </script>
+
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+		  <div class="navbar-header">
+			<a class="navbar-brand" href="/">%HOSTNAME%</a>
+		  </div>
+		  <ul class="nav navbar-nav">
+			<li><a href="/">Fingerprints</a></li>
+		  <li><a href="colorSettings">Colors</a></li>
+		  <li><a href="wifiSettings">WiFi & Network</a></li>
+		  <li><a href="settings">MQTT & Admin</a></li>
+		  </ul>
+		<ul class="nav navbar-nav navbar-right">
+		  <li><a href="logout">Log out</a></li>
+		</ul>
+		</div>
+	</nav>
+
+	<div class="alert alert-custom" id="logMessages" role="alert">%LOGMESSAGES%</div>
+
+	<form class="form-horizontal" action="/wifiSettings">
+	<fieldset>
+
+	<!-- Form Name -->
+	<legend>WiFi</legend>
+
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="ssid">SSID</label>  
+		<div class="col-md-5">
+		<input id="ssid" name="ssid" type="text" placeholder="SSID of your WiFi network" class="form-control input-md" value="%WIFI_SSID%" required>
+		</div>
+	</div>
+
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="password">WiFi password</label>  
+		<div class="col-md-5">
+		<input id="password" name="password" type="text" placeholder="Password of your WiFi network" class="form-control input-md" value="%WIFI_PASSWORD%" required>
+		<small class="text-muted">For security reason the current password is not displayed here, but you can set a new one.</small>
+		</div>
+	</div>
+
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="hostname">Hostname</label>  
+		<div class="col-md-5">
+		<input id="hostname" name="hostname" type="text" placeholder="Hostname of your FingerprintDoorbell" class="form-control input-md" value="%HOSTNAME%" required>
+		<small class="text-muted">The name under which this device will be available in your network. Also used in the title of the web front end. <br>Hint: just leave it "FingerprintDoorbell" unless you have multiple devices and want to differentiate between them.</small>		
+		</div>
+	</div>
+
+	<p></p>
+	<!-- Form Name -->
+	<legend>IPv4 and DNS</legend>
+	
+	<div class="form-group">
+		<label for="dhcp_setting" class="col-md-4 control-label"></label> 
+		<div class="col-md-5">
+			<label class="radio-inline">
+			<input type="radio" name="dhcp_setting" value="1" %DHCP_SETTING_1%>
+				DHCP server
+			</label>
+			<label class="radio-inline">
+			<input type="radio" name="dhcp_setting" value="0" %DHCP_SETTING_0%>
+				Static IP settings
+			</label>
+		</div>
+		<label for="dhcp_setting_warning" class="col-md-4 control-label"></label> 
+		<div class="col-md-5">
+			<small class="text-muted">Be carefull with those settings. If you choose an invalid IP range, you might not be able to reach the web interface anymore.</small>
+		</div>
+	</div>
+	
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="local_ip">Local IP address</label>  
+		<div class="col-md-5">
+		<input id="local_ip" name="local_ip" type="text" placeholder="" class="form-control input-md" value="%LOCAL_IP%" required>	
+		</div>
+	</div>
+	
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="gateway_ip">Gateway IP address</label>  
+		<div class="col-md-5">
+		<input id="gateway_ip" name="gateway_ip" type="text" placeholder="" class="form-control input-md" value="%GATEWAY_IP%" required>	
+		</div>
+	</div>
+	
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="subnet_mask">Subnet mask</label>  
+		<div class="col-md-5">
+		<input id="subnet_mask" name="subnet_mask" type="text" placeholder="" class="form-control input-md" value="%SUBNET_MASK%" required>	
+		</div>
+	</div>
+	
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="dns_ip0">DNS server 1</label>  
+		<div class="col-md-5">
+		<input id="dns_ip0" name="dns_ip0" type="text" placeholder="" class="form-control input-md" value="%DNS_IP0%" required>	
+		</div>
+	</div>
+	
+	<!-- Text input-->
+	<div class="form-group">
+		<label class="col-md-4 control-label" for="dns_ip1">DNS server 2</label>  
+		<div class="col-md-5">
+		<input id="dns_ip1" name="dns_ip1" type="text" placeholder="" class="form-control input-md" value="%DNS_IP1%" required>	
+		</div>
+	</div>
+	  
+	<!-- Button (Double) -->
+	<div class="form-group">
+	  <label class="col-md-4 control-label" for="save"></label>
+	  <div class="col-md-5">
+		<button id="btnSaveWiFiSettings" name="btnSaveWiFiSettings" class="btn btn-success">Save and restart</button>
+	  </div>
+	</div>
+
+	<p></p>
+	<nav class="navbar navbar-default ">
+		<div class="container-fluid">
+		  <p class="navbar-text">FingerprintDoorbell, Version %VERSIONINFO%</p>
+		</div>
+	</nav>
+
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+	<!-- created with https://bootstrapformbuilder.com/ -->
+<title>FingerprintDoorbell</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="utf-8">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+	integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<style>
+	.alert-custom {
+		background-color: #cecece;
+		color: rgb(0, 0, 0);
+	}
+
+	.form-horizontal {
+		margin-left: 15px;
+		margin-right: 15px;
+	}
+</style>
+</head>
+
+<body>
+	<script>
+		if (!!window.EventSource) {
+			var source = new EventSource('/events');
+
+			source.addEventListener('open', function (e) {
+				console.log("Events Connected");
+			}, false);
+
+			source.addEventListener('error', function (e) {
+				if (e.target.readyState != EventSource.OPEN) {
+					console.log("Events Disconnected");
+				}
+			}, false);
+
+			// event is fired when a new message from server was received
+			source.addEventListener('message', function (e) {
+				console.log("message", e.data);
+				document.getElementById('logMessages').innerHTML = event.data;
+			}, false);
+
+			// event is fired when server side fingerlist was changed (e.g. enrollment of new finger)
+			source.addEventListener('fingerlist', function (e) {
+				console.log("fingerlist", e.data);
+				document.getElementById('selectedFingerprint').innerHTML = event.data;
+			}, false);
+		}
+
+		function askForNewName(e) {
+			var list = document.getElementById("selectedFingerprint");
+			var strOldName = list.options[list.selectedIndex].text;
+			strOldName = strOldName.substr(strOldName.indexOf('-') + 2);
+			newname = prompt('New Name?', strOldName);
+			if (newname === null)
+				document.getElementById('renameNewName').value = strOldName;
+			else
+				document.getElementById('renameNewName').value = newname;
+		}
+	</script>
+
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/">%HOSTNAME%</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Fingerprints</a></li>
+				<li><a href="colorSettings">Colors</a></li>
+				<li><a href="wifiSettings">WiFi & Network</a></li>
+				<li><a href="settings">MQTT & Admin</a></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="logout">Log out</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<p></p>
+	<div class="alert alert-custom" id="logMessages" role="alert">%LOGMESSAGES%</div>
+
+	<form class="form-horizontal" action="/editFingerprints">
+		<fieldset>
+
+			<!-- Form Name -->
+			<legend>Manage fingerprints</legend>
+
+			<!-- Select Multiple -->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="selectedFingerprint">Fingerprints in DB</label>
+				<div class="col-md-5">
+					<select id="selectedFingerprint" name="selectedFingerprint" class="form-control" size="10">
+						<!--option value="1">1 - Option one</option-->
+						%FINGERLIST%
+					</select>
+					<input type="hidden" id="renameNewName" name="renameNewName" type="text"
+						class="form-control input-md">
+				</div>
+			</div>
+
+			<!-- Button (Double) -->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="btnRename"></label>
+				<div class="col-md-5">
+					<button id="btnRename" name="btnRename" class="btn btn-info"
+						onclick="askForNewName(event)">Rename</button>
+					<button id="btnDelete" name="btnDelete" class="btn btn-danger">Delete</button>
+				</div>
+			</div>
+
+		</fieldset>
+	</form>
+
+	<form class="form-horizontal" action="/enroll">
+		<fieldset>
+
+			<!-- Form Name -->
+			<legend>Add/Replace fingerprint</legend>
+
+			<!-- Text input-->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="newFingerprintId">Memory slot (1-200)</label>
+				<div class="col-md-5">
+					<input id="newFingerprintId" name="newFingerprintId" type="text" placeholder="1-200"
+						class="form-control input-md" required="">
+					<small class="text-muted">The sensor has 200 memory slots available for storing fingerprints. The
+						choosen slot number will also be used as an ID when matches are published by MQTT.</small>
+				</div>
+			</div>
+
+			<!-- Text input-->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="newFingerprintName">Name</label>
+				<div class="col-md-5">
+					<input id="newFingerprintName" name="newFingerprintName" type="text" placeholder="(optional)"
+						class="form-control input-md">
+					<small class="text-muted">Just for human readability you can additionally assign an name to your
+						slot number. The name will also been published by MQTT.</small>
+				</div>
+			</div>
+
+			<!-- Button -->
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="startEnrollment"></label>
+				<div class="col-md-5">
+					<button id="startEnrollment" name="startEnrollment" class="btn btn-success">Start
+						enrollment</button>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+
+	<!-- Horizontale Linie -->
+	<hr style="height:5px;border-width:1px;color:blue;background-color:blue">
+
+	<form class="form-horizontal" action="/editAccessAuthorisation">
+		<fieldset>
+
+		<!-- Text input-->
+						<div class="form-group">
+			<label class="col-md-4 control-label" for="door1_list">Finger Mapping Door1</label>  
+			<div class="col-md-4">
+			<input id="door1_list" name="door1_list" type="text" placeholder="comma seperated list in format 1,3,7,11,15" class="form-control input-md" value="%DOOR1_LIST%">
+			<small class="text-muted">List Format: 1,3,7,11,15</small>		
+			</div>
+		</div>
+	
+		<!-- Text input-->
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="door2_list">Finger Mapping Door2</label>  
+			<div class="col-md-4">
+			<input id="door2_list" name="door2_list" type="text" placeholder="comma seperated list in format 1,3,7,11,15" class="form-control input-md" value="%DOOR2_LIST%">
+			<small class="text-muted">List Format: 1,3,7,11,15</small>		
+			</div>
+		</div>	
+
+			<!-- Button -->
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="btnSaveDoorLists"></label>
+			<div class="col-md-4">
+			<button id="btnSaveDoorLists" name="btnSaveDoorLists" class="btn btn-info">SaveDoorLists and Restart</button>
+							</div>
+						</div>
+						
+		</fieldset>
+	</form>
+
+	<!-- Horizontale Linie -->
+	<hr style="height:5px;border-width:1px;color:blue;background-color:blue">
+
+	<p></p>
+	<nav class="navbar navbar-default ">
+		<div class="container-fluid">
+			<p class="navbar-text">FingerprintDoorbell, Version %VERSIONINFO%</p>
+		</div>
+	</nav>
+
+</body>
+
+</html> -->
